@@ -1,0 +1,148 @@
+function yapboz (konum)
+    k1=konum
+    C=cat(3,A(1:100,1:100,1),A(1:100,1:100,2),A(1:100,1:100,3));
+endfunction
+
+for i = 100:300
+  C=cat(3,A(1:i,1:i,1),A(1:i,1:i,2),A(1:i,1:i,3));
+  imshow(C)
+  i=i+100;
+endfor
+
+function [C] = yapboz(image, x, y, piece)
+  p=length(image)/piece;
+  i=(x-1)*p+1;
+  j=(y-1)*p+1;
+  C=cat(3,image(i:i+p-1,j:j+p-1,1),image(i:i+p-1,j:j+p-1,2),image(i:i+p-1,j:j+p-1,3));
+endfunction
+
+function [parca] = bol(image, piece)
+  h=1;
+  pboyut=length(image)/piece;
+  for a=1:piece
+    for b=1:piece
+      i=(a-1)*pboyut+1;
+      j=(b-1)*pboyut+1;
+      parca{h}=image(i:i+pboyut-1,j:j+pboyut-1,:);
+      h=h+1;
+    endfor
+  endfor
+endfunction
+
+function [birlesmis] = birlestir(parca, piece)
+  parcasay = length(parca);
+  pboyut = length(parca{1});
+  birlesmis = zeros(pboyut * piece, pboyut * piece, 3, 'uint8');
+  ind = randperm(parcasay);
+  h = 1;
+  for a = 1:piece
+    for b = 1:piece
+      idx = ind(h);
+      i = (a-1) * pboyut + 1;
+      j = (b-1) * pboyut + 1;
+      birlesmis(i:i+pboyut-1, j:j+pboyut-1, :) = parca{idx};
+      h = h + 1;
+    endfor
+  endfor
+endfunction
+
+parcalar=bol(A,4);
+rastgele=birlestir(parcalar,4);
+imshow(rastgele)
+
+
+
+A=imread("1.png");
+B=imread("2.png");
+
+function [birlesmis] = yapboz(image, piece)
+  parcasay=1;
+  pboyut=length(image)/piece;
+  for a=1:piece
+    for b=1:piece
+      i=(a-1)*pboyut+1;
+      j=(b-1)*pboyut+1;
+      parca{parcasay}=image(i:i+pboyut-1, j:j+pboyut-1, :);
+      parcasay++;
+    endfor
+  endfor
+
+  parcasay--;
+  birlesmis=zeros(pboyut*piece, pboyut*piece, 3, 'uint8');
+  ind=randperm(parcasay);
+  h=1;
+  for a=1:piece
+    for b=1:piece
+      idx=ind(h);
+      i=(a-1)*pboyut+1;
+      j=(b-1)*pboyut+1;
+      birlesmis(i:i+pboyut-1, j:j+pboyut-1, :)=parca{idx};
+      h++;
+    endfor
+  endfor
+endfunction
+
+imshow(yapboz(A, 4))
+imshow(yapboz(B, 3))
+
+
+
+
+
+
+function [birlesmis] = yapboz(image, piece)
+  parcasay=1;
+  pboyut=length(image)/piece;
+  parcatop=piece^2;
+  birlesmis=zeros(pboyut*piece, pboyut*piece, 3, 'uint8');
+  ind=randperm(parcatop);
+  for a=1:piece
+    for b=1:piece
+      i=(a-1)*pboyut+1;
+      j=(b-1)*pboyut+1;
+      parca=image(i:i+pboyut-1, j:j+pboyut-1, :);
+      idx=ind(parcasay);
+      k=mod(idx-1, piece)*pboyut+1;
+      l=idivide(idx-1, int32(piece), 'floor')*pboyut+1;
+      birlesmis(k:k+pboyut-1, l:l+pboyut-1, :)=parca;
+      parcasay++;
+    endfor
+  endfor
+endfunction
+A=imread("1.png");
+B=imread("2.png");
+imshow(yapboz(A, 4))
+imshow(yapboz(B, 3))
+
+
+
+
+
+
+
+function [birlesmis] = yapboz(image, piece)
+  parcasay=1;
+  parcatop=piece^2;
+  [pboyutx, pboyuty, ch]=size(image);
+  pboyutx=idivide(pboyutx, int32(piece), 'floor');
+  pboyuty=idivide(pboyuty, int32(piece), 'floor');
+  birlesmis=zeros(pboyutx*piece, pboyuty*piece, ch, 'uint8');
+  ind=randperm(parcatop);
+  for a=1:piece
+    for b=1:piece
+      i=(a-1)*pboyutx+1;
+      j=(b-1)*pboyuty+1;
+      parca=image(i:i+pboyutx-1, j:j+pboyuty-1, :);
+      idx=ind(parcasay);
+      k=mod(idx-1, piece)*pboyutx+1;
+      l=idivide(idx-1, int32(piece), 'floor')*pboyuty+1;
+      birlesmis(k:k+pboyutx-1, l:l+pboyuty-1, :)=parca;
+      parcasay++;
+    endfor
+  endfor
+endfunction
+
+A=imread("1.png");
+B=imread("2.png");
+imshow(yapboz(A, 4))
+imshow(yapboz(B, 3))

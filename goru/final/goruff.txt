@@ -1,0 +1,280 @@
+pkg load image;
+
+function processed_image = process_document(image_path)
+  % Adım 1: Görüntüyü yükleyin ve gri tonlamaya dönüştürün
+  original_image = imread(image_path);
+  gray_image = rgb2gray(original_image);
+  
+  % Adım 2: Kenarları tespit etmek için Canny kenar algılamayı kullanın
+  edges = edge(gray_image, 'canny');
+  
+  % Adım 3: Evrakın köşe noktalarını bulun (örneğin, hough dönüşümü kullanarak)
+  [H, theta, rho] = hough(edges);
+  peaks = houghpeaks(H, 4);
+  lines = houghlines(edges, theta, rho, peaks);
+  
+  % Köşe noktalarını belirleyin
+  corners = detect_corners(lines);
+  
+  % Adım 4: Perspektif dönüşüm matrisi oluşturma
+  [output_image, transform_matrix] = warp_image(original_image, corners);
+  
+  % Adım 5: Çıkış görüntüsünde karşılığı olmayan pikselleri medyan filtre ile düzeltme
+  output_image = apply_median_filter(output_image);
+  
+  % Adım 6: İşlenen görüntüyü kaydetme
+  imwrite(output_image, 'processed_image.png');
+  
+  processed_image = output_image;
+end
+
+function corners = detect_corners(lines)
+  % Köşe noktalarını belirlemek için bir fonksiyon yazın
+  % Bu kısım spesifik detaylara göre değişecektir
+  corners = [];
+  % Detaylı köşe bulma işlemleri burada yapılacak
+end
+
+function [output_image, transform_matrix] = warp_image(image, corners)
+  % Perspektif dönüşüm matrisi oluşturma ve görüntüyü dönüştürme
+  % Bu kısım spesifik detaylara göre değişecektir
+  output_image = [];
+  transform_matrix = [];
+  % Dönüşüm işlemleri burada yapılacak
+end
+
+function output_image = apply_median_filter(image)
+  % Medyan filtre uygulama
+  output_image = medfilt2(image);
+end
+
+processed_image = process_document("ilac.jpg");
+imshow(processed_image);
+
+% Ana program
+image_paths = {"ilac.jpg", "image2.jpg", "image3.jpg"};
+for i = 1:length(image_paths)
+  processed_image = process_document(image_paths{i});
+  imshow(processed_image);
+end
+
+
+
+
+
+
+% Adım 1: İlk olarak ilac.jpg dosyasını okuyalım
+original_image = imread('ilac.jpg');
+
+% Adım 2: Evrakın sağ-sol ve alt-üst köşe noktalarını belirleyelim
+% Bu adımı elle yapmak yerine, otomatik olarak belirlemek için uygun bir yöntem kullanılabilir.
+
+% Örneğin, evrakın kenarlarını algılamak için bir kenar algılama yöntemi kullanabiliriz.
+% Bu örnekte, basitçe boyutları göz önünde bulundurarak manuel olarak köşe noktalarını belirleyeceğiz.
+top_left = [132, 127];        % Sol üst köşe
+bottom_right = [592, 426];  % Sağ alt köşe
+
+% Adım 3: Belirlenen köşe noktalarına göre evraka ait görüntüyü kırpalım
+cropped_image = original_image(top_left(2):bottom_right(2), top_left(1):bottom_right(1), :);
+
+% Adım 4: Maskelenmiş görüntüyü oluşturalım
+masked_image = cropped_image;
+
+% Adım 5: Çıkış görüntü matrisini oluşturalım (örneğin, sadece grayscale yapalım)
+output_image = rgb2gray(masked_image);
+
+% Adım 6: Çıkış görüntü matrisini kaydedelim
+imwrite(output_image, 'output_image.jpg');
+
+% Opsiyonel Adım: Medyan filtre uygulayarak eksik pikselleri dolduralım
+output_image_filled = medfilt2(output_image);
+
+% Elde edilen görüntüyü dosyaya kaydedelim (medyan filtre uygulandıktan sonra)
+imwrite(output_image_filled, 'output_image_filled.jpg');
+
+
+
+
+
+% Resmi okuma
+img = imread('ilac.jpg');
+
+% Resmi gösterme
+imshow(img);
+title('Orijinal Resim');
+
+% Resmin boyutlarını al
+[rows, cols, ~] = size(img);
+
+% Kutunun merkezini ve boyutunu belirle (örneğin)
+box_size = [460, 300]; % Kutunun boyutu (örneğin)
+box_center = [362, 276]; % Kutunun merkezi
+
+% Maske oluşturma
+mask = zeros(rows, cols);
+mask_start = box_center - box_size/2;
+mask_end = box_center + box_size/2;
+mask(mask_start(2):mask_end(2), mask_start(1):mask_end(1)) = 1;
+
+% Maskeyi görselleştirme
+figure;
+imshow(mask);
+title('Maske');
+
+% Maskeyi resim üzerine uygulama
+masked_img = img;
+masked_img(repmat(mask, [1, 1, size(img, 3)]) ~= 1) = 0;
+
+% Sonucu gösterme
+figure;
+imshow(masked_img);
+title('Kutuya Ait Görüntü');
+
+% Sonucu dosyaya kaydetme (isteğe bağlı)
+imwrite(masked_img, 'kutu_goruntusu.jpg');
+
+
+
+box_center = [362, 276];
+output_img(round((y-125)*(544/300)), round((x-131)*(726/460))) = masked_img(y, x);
+
+
+
+fill_img = output_img;
+channel = fill_img(:,:);
+zero_indices = (fill_img(:,:) == 0);
+median_value = median(channel(~zero_indices));
+channel(zero_indices) = median_value;
+fill_img(:,:) = channel;
+
+
+
+
+
+image = rgb2gray(imread("kimlik.jpg"));
+[rows, cols, ~] = size(image);
+mask = zeros(rows, cols);
+x1=9;
+x2=433;
+y1=20;
+y2=695;
+mask(x1:x2, y1:y2) = 1;
+maskeleme = image;
+maskeleme(repmat(mask, [1, 1, size(image, 3)]) ~= 1) = 0;
+imshow(maskeleme);
+
+matris = zeros(rows, cols, 'uint8');
+for a = 1:rows
+    for b = 1:cols
+        if mask(a, b) == 1
+            matris(round((a-8)*(rows/(x2-x1))), round((b-19)*(cols/(y2-y1)))) = maskeleme(a, b);
+        end
+    end
+end
+imshow(matris);
+
+
+
+matris(floor((a-8)*(456/424)), floor((b-19)*(713/675))) = maskeleme(a, b);
+447 693
+floor((a-19)*(713/675))
+
+
+output_img(round((y-(mek2-boxs2/2)+1)*(rows/boxs2)), round((x-(mek1-boxs1/2)+1)*(cols/boxs1))) = masked_img(y, x);
+
+
+img = imread('ilacc1.jpg');
+[rows, cols, ~] = size(img);
+
+gimg = rgb2gray(img);
+
+box_size = [460, 300];
+box_center = [246, 164];
+
+mask = zeros(rows, cols);
+mask_start = box_center - box_size/2;
+mask_end = box_center + box_size/2;
+mask(mask_start(2):mask_end(2), mask_start(1):mask_end(1)) = 1;
+
+masked_img = gimg;
+masked_img(repmat(mask, [1, 1, size(gimg, 3)]) ~= 1) = 0;
+
+imshow(masked_img);
+
+output_img = zeros(rows, cols, 'uint8');
+
+for y = 1:rows
+    for x = 1:cols
+        if mask(y, x) == 1
+            output_img(round((y-13)*(335/300)), round((x-15)*(494/460))) = masked_img(y, x);
+        end
+    end
+end
+
+imshow(output_img);
+
+fill_img = medfilt2(output_img, [3 3]);
+
+imshow(fill_img);
+
+
+B = medfilt2(output_img, [4 4]);
+fill_img = output_img;
+for y = 1:rows
+    for x = 1:cols
+        if fill_img(y, x) == 0
+            fill_img(y,x) = B(y,x);
+        end
+    end
+end
+
+imshow(fill_img);
+
+imwrite(fill_img, 'img.jpg');
+
+
+
+
+
+function ilac(img, boxs1, boxs2, mek1, mek2)
+  [rows, cols, ~] = size(img);
+  gimg = rgb2gray(img);
+  box_size = [boxs1, boxs2];
+  box_center = [mek1, mek2];
+  mask = zeros(rows, cols);
+  mask_start = box_center - box_size/2;
+  mask_end = box_center + box_size/2;
+  mask(mask_start(2):mask_end(2), mask_start(1):mask_end(1)) = 1;
+  masked_img = gimg;
+  masked_img(repmat(mask, [1, 1, size(gimg, 3)]) ~= 1) = 0;
+  imshow(masked_img);
+  output_img = zeros(rows, cols, 'uint8');
+  for y = 1:rows
+      for x = 1:cols
+          if mask(y, x) == 1
+              output_img(round((y-(mek2-boxs2/2)+1)*(rows/boxs2)), round((x-(mek1-boxs1/2)+1)*(cols/boxs1))) = masked_img(y, x);
+          end
+      end
+  end
+  imshow(output_img);
+  B = medfilt2(output_img, [4 4]);
+  fill_img = output_img;
+  for y = 1:rows
+      for x = 1:cols
+          if fill_img(y, x) == 0
+              fill_img(y,x) = B(y,x);
+          end
+      end
+  end
+  imshow(fill_img);
+  imwrite(fill_img, 'sonuc.jpg');
+endfunction
+
+img = imread('ilac1.jpg');
+ilac(img, 460, 300, 246, 164);
+
+img = imread('ilac2.jpg');
+ilac(img, 422, 194, 227, 110);
+
+img = imread('ilac3.jpg');
+ilac(img, 1000, 388, 538, 232);
